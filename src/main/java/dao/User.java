@@ -50,7 +50,6 @@ public class User {
         String q = "UPDATE users SET session = ?, login_time = UNIX_TIMESTAMP(NOW()) WHERE username = ?";
 
         String session = generateSession();
-        List<Integer> keys = new ArrayList<>();
         try {
             if (conn.runPreparedUpdate(q, session, userName) == 1) {
                 return session;
@@ -63,7 +62,8 @@ public class User {
     }
 
     public static boolean validateSession(SQLUtils conn, String session, String userName, long maxSessionDuration) {
-        String q = "SELECT 1 FROM users WHERE user_name = ? AND session = ? AND (UNIX_TIMESTAMP(NOW()) - login_time) > ?";
+        String q = "SELECT 1 FROM users WHERE username = ? AND session = ? AND (UNIX_TIMESTAMP(NOW()) - login_time) <= ?"
+                + " AND session IS NOT NULL AND login_time IS NOT NULL";
 
         try {
             Optional<ResultSet> oRs = conn.runPreparedQuery(q, userName, session, maxSessionDuration);
@@ -73,6 +73,19 @@ public class User {
             } else {
                 return false;
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static boolean deleteUser(SQLUtils conn, String userName) {
+        String q = "DELETE FROM users WHERE username = ?";
+
+        try {
+            return conn.runPreparedUpdate(q, userName) == 1;
 
         } catch (Exception e) {
             e.printStackTrace();
