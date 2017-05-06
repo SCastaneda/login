@@ -47,12 +47,12 @@ public class User {
     }
 
     public static String createSession(SQLUtils conn, String userName) {
-        String q = "INSERT INTO users SET session = ?, login_time = NOW() WHERE username = ?";
+        String q = "UPDATE users SET session = ?, login_time = UNIX_TIMESTAMP(NOW()) WHERE username = ?";
 
         String session = generateSession();
         List<Integer> keys = new ArrayList<>();
         try {
-            if (conn.runPreparedInsert(q, keys, session, userName)) {
+            if (conn.runPreparedUpdate(q, session, userName) == 1) {
                 return session;
             }
         } catch (Exception e) {
@@ -63,7 +63,7 @@ public class User {
     }
 
     public static boolean validateSession(SQLUtils conn, String session, String userName, long maxSessionDuration) {
-        String q = "SELECT 1 FROM users WHERE user_name = ? AND session = ? AND (NOW() - login_time) > ?";
+        String q = "SELECT 1 FROM users WHERE user_name = ? AND session = ? AND (UNIX_TIMESTAMP(NOW()) - login_time) > ?";
 
         try {
             Optional<ResultSet> oRs = conn.runPreparedQuery(q, userName, session, maxSessionDuration);

@@ -19,6 +19,7 @@ public class Login {
     }
 
     public String execute() {
+
         JSONObject response = new JSONObject();
 
         String username = "";
@@ -29,15 +30,30 @@ public class Login {
             username = body.getString("username");
             password = body.getString("password");
         } catch (Exception e) {
-            response.put("status", "FAIL");
-            response.put("error_message", loginFailMessage);
             _response.status(401); // unauthorized status code
+            return failResponse(response);
         }
+
+        System.out.println("Received login request for user: " + username);
 
         SQLUtils conn = new SQLUtils();
 
-        User.validateLogin(conn, username, password);
+        if (User.validateLogin(conn, username, password)) {
+            String session = User.createSession(conn, username);
+            if (!session.isEmpty()) {
+                response.put("session", session);
+                return response.toString();
+            }
+        }
 
-        return "{}";
+        _response.status(401); // unauthorized status code
+        return failResponse(response);
+
+    }
+
+    private String failResponse(JSONObject response) {
+        response.put("error_message", loginFailMessage);
+
+        return response.toString();
     }
 }

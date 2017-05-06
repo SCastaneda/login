@@ -33,8 +33,8 @@ public class SQLUtils {
 
         PreparedStatement stmt = _conn.prepareStatement(query);
 
-        for (int i = 0; i < parameters.length; i++) {
-            stmt.setString(i, parameters[i].toString());
+        for (int i = 1; i <= parameters.length; i++) {
+            stmt.setString(i, parameters[i - 1].toString());
         }
 
         rs = stmt.executeQuery();
@@ -71,8 +71,8 @@ public class SQLUtils {
 
         PreparedStatement stmt = _conn.prepareStatement(query);
 
-        for (int i = 0; i < parameters.length; i++) {
-            stmt.setString(i, parameters[i].toString());
+        for (int i = 1; i <= parameters.length; i++) {
+            stmt.setString(i, parameters[i - 1].toString());
         }
 
         return stmt.executeUpdate();

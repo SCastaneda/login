@@ -11,8 +11,6 @@ public class SignUp {
     private Request _request;
     private Response _response;
 
-    private SQLUtils _conn;
-
     public SignUp(Request request, Response response) {
         _request = request;
         _response = response;
@@ -36,17 +34,14 @@ public class SignUp {
                 info = body.getString("info");
             }
         } catch (Exception e) {
-            response.put("status", "FAIL");
             response.put("error_message", "Invalid sign-up request");
             return response.toString();
         }
 
 
-        _conn = new SQLUtils();
+        SQLUtils conn = new SQLUtils();
 
-        boolean success = !username.isEmpty() && !password.isEmpty() && User.addUser(_conn, username, password, info);
-
-        response.put("status", (success ? "OK" : "FAIL"));
+        boolean success = !username.isEmpty() && !password.isEmpty() && User.addUser(conn, username, password, info);
 
         if (!success) {
             response.put("error_message", "Could not create user");
