@@ -11,6 +11,12 @@ public class SQLUtils {
         this("localhost", "test", "root", "test");
     }
 
+    /**
+     * @param url      URL to the database
+     * @param db       Database to connect to
+     * @param user     username to the database
+     * @param password password to the database
+     */
     public SQLUtils(String url, String db, String user, String password) {
 
         try {
@@ -25,6 +31,12 @@ public class SQLUtils {
         }
     }
 
+    /**
+     * @param query
+     * @param parameters
+     * @return Optional ResultSet from running the query with the given parameters
+     * @throws SQLException
+     */
     public Optional<ResultSet> runPreparedQuery(String query, Object... parameters) throws SQLException {
 
         System.out.println(query);
@@ -45,11 +57,18 @@ public class SQLUtils {
         return Optional.of(rs);
     }
 
+    /**
+     * @param query      query to be sent to the database
+     * @param keys       this list gets populated with the key of the inserted row
+     * @param parameters parameters for the query
+     * @return true if a row was inserted into the table, false otherwise
+     * @throws SQLException
+     */
     public boolean runPreparedInsert(String query, List<Integer> keys, Object... parameters) throws SQLException {
 
         System.out.println(query);
 
-        PreparedStatement stmt = _conn.prepareStatement(query);
+        PreparedStatement stmt = _conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
         System.out.println("Parameters: ");
         for (int i = 1; i <= parameters.length; i++) {
@@ -69,6 +88,12 @@ public class SQLUtils {
         return true;
     }
 
+    /**
+     * @param query      query to be sent to the database
+     * @param parameters parameters for the query
+     * @return numbers of rows updated
+     * @throws SQLException
+     */
     public int runPreparedUpdate(String query, Object... parameters) throws SQLException {
 
         System.out.println(query);

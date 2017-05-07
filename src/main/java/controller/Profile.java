@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 
+import java.util.Optional;
+
 public class Profile {
 
     Request _request;
@@ -16,6 +18,29 @@ public class Profile {
     public Profile(Request request, Response response) {
         _request = request;
         _response = response;
+    }
+
+    public String get() {
+        String userName = _request.params(":username");
+        JSONObject response = new JSONObject();
+
+        if (!userName.isEmpty()) {
+
+            SQLUtils conn = new SQLUtils();
+            Optional<User> oUser = User.getPublicUserInfo(conn, userName);
+            if (oUser.isPresent()) {
+                User user = oUser.get();
+
+                response.put("username", user._user_name);
+                response.put("info", user._info);
+            } else {
+                _response.status(404);
+            }
+        } else {
+            _response.status(400);
+        }
+
+        return response.toString();
     }
 
     public String update() {
@@ -45,7 +70,6 @@ public class Profile {
             _response.status(400);
             return response.toString();
         }
-
 
         SQLUtils conn = new SQLUtils();
 

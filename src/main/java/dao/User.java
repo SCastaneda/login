@@ -11,6 +11,14 @@ import java.util.UUID;
 
 public class User {
 
+    public String _user_name;
+    public String _info;
+
+    public User(String userName, String info) {
+        _user_name = userName;
+        _info = info;
+    }
+
     public static boolean addUser(SQLUtils conn, String userName, String password, String info) {
         String q = "INSERT INTO users (username, password, info) VALUES (?, ?, ?)";
 
@@ -140,6 +148,25 @@ public class User {
         }
 
         return false;
+    }
+
+    public static Optional<User> getPublicUserInfo(SQLUtils conn, String userName) {
+        String q = "SELECT username, info FROM users WHERE username = ?";
+
+        try {
+            Optional<ResultSet> oRs = conn.runPreparedQuery(q, userName);
+            if (oRs.isPresent()) {
+                ResultSet rs = oRs.get();
+                if (rs.next()) {
+                    return Optional.of(new User(userName, rs.getString("info")));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
     }
 
     private static String generateSession() {

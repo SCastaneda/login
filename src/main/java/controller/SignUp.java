@@ -41,6 +41,7 @@ public class SignUp {
 
         SQLUtils conn = new SQLUtils();
 
+        // make sure the username and password are not empty, the info is optional
         boolean success = !username.isEmpty() && !password.isEmpty() && User.addUser(conn, username, password, info);
 
         if (!success) {
