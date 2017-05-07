@@ -61,6 +61,42 @@ public class User {
         return "";
     }
 
+    public static boolean updateProfile(SQLUtils conn, String userName, String newUserName, String newInfo) {
+
+        if (newUserName.isEmpty() && newInfo.isEmpty()) {
+            return true;
+        }
+
+        List<String> params = new ArrayList<>();
+
+        StringBuilder q = new StringBuilder();
+        q.append("UPDATE users SET ");
+
+        if (!newUserName.isEmpty()) {
+            q.append("username = ?,");
+            params.add(newUserName);
+        }
+
+        if (!newInfo.isEmpty()) {
+            q.append("info = ?,");
+            params.add(newInfo);
+        }
+
+        // remove last comma
+        q.setLength(q.length() - 1);
+
+        q.append(" WHERE username = ?");
+        params.add(userName);
+
+        try {
+            return conn.runPreparedUpdate(q.toString(), params.toArray()) == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public static boolean validateSession(SQLUtils conn, String session, String userName, long maxSessionDuration) {
         String q = "SELECT 1 FROM users WHERE username = ? AND session = ? AND (UNIX_TIMESTAMP(NOW()) - login_time) <= ?"
                 + " AND session IS NOT NULL AND login_time IS NOT NULL";
@@ -87,6 +123,18 @@ public class User {
         try {
             return conn.runPreparedUpdate(q, userName) == 1;
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static boolean changePassword(SQLUtils conn, String userName, String password) {
+        String q = "UPDATE users SET password = ? WHERE username = ?";
+
+        try {
+            return conn.runPreparedUpdate(q, BCrypt.hashpw(password, BCrypt.gensalt(12)), userName) == 1;
         } catch (Exception e) {
             e.printStackTrace();
         }

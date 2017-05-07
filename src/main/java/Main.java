@@ -19,6 +19,9 @@ public class Main {
 
         /* allow user to delete his profile */
         delete("/profile", (req, res) -> new Profile(req, res).delete());
+
+        /* requires either active session or password */
+        put("/password", (req, res) -> new Profile(req, res).changePassword());
     }
 
 }
